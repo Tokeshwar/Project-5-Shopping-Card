@@ -123,10 +123,10 @@ const getProduct = async (req, res) => {
                 console.log(allSize)
                 filterQuery.availableSizes = { $in: allSize }
             }
-
+          
             if (Object.keys(filter).includes('priceGreaterThan')) {
                 if (!validate.isValidNum(priceGreaterThan)) {
-                    return res.status(400).send({ status: false, msg: "Please give valid price" })
+                    return res.status(400).send({ status: false, msg: "Pleasee give valid price" })
                 }
                 filterQuery.price = { $gte: priceGreaterThan };
             }
@@ -136,7 +136,8 @@ const getProduct = async (req, res) => {
                 }
                 filterQuery.price = { $lte: priceLessThan };
             }
-            if(filter.hasOwnProperty("priceLessThan",'priceGreaterThan')){
+            if(filter.hasOwnProperty("priceLessThan")){
+                if(filter.hasOwnProperty("priceGreaterThan")){
                 if (!validate.isValidNum(priceLessThan)) {
                     return res.status(400).send({ status: false, msg: "Please give valid price" })
                 }
@@ -144,9 +145,11 @@ const getProduct = async (req, res) => {
                     return res.status(400).send({ status: false, msg: "Please give valid price" })
                 }
                 filterQuery.price = { $lte: priceLessThan, $gte: priceGreaterThan};
-            }
+            }}
+
+            
         }
-        // console.log(filterQuery)
+        console.log(filterQuery)
 
         const product = await productModel.find(filterQuery).sort({ price: Sort });
         if (product.length == 0) {
