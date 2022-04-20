@@ -19,9 +19,9 @@ const createOrder = async function (req, res) {
         if (!validate.isValidObjectId(user_id)) {
             return res.status(400).send({ status: false, message: "Valid userId is required" })
         }
-        // if (userId !== req.loggedInUser) {
-        //     return res.status(403).send({ satus: false, message: `Unauthorized access! Owner info doesn't match` })
-        // }
+        if (userId !== req.loggedInUser) {
+            return res.status(403).send({ satus: false, message: `Unauthorized access! Owner info doesn't match` })
+        }
         if (!validate.isValidRequestBody(reqbody)) {
             return res.status(400).send({ status: false, message: "Please enter the order details" })
         }
