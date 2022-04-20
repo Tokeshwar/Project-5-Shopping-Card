@@ -55,14 +55,8 @@ const createProduct = async function (req, res) {
         if (!validate.isValid(currencyId)) {
             return res.status(400).send({ status: false, message: "Please provide product's currencyId" })
         }
-        if (!validate.isValidString(currencyId)) {
-            return res.status(400).send({ status: false, message: "Please provide valid product's currencyId" })
-        }
-        if (!validate.isValid(currencyId)) {
-            return res.status(400).send({ status: false, message: "Please provide product's currencyId" })
-        }
-        if (!validate.isValidString(currencyFormat)) {
-            return res.status(400).send({ status: false, message: "Please provide valid product's currencyFormat" })
+        if (!validate.isValid(currencyFormat)) {
+            return res.status(400).send({ status: false, message: "Please provide product's currencyFormat" })
         }
         if (Object.keys(data).includes('installments')) {
             if (!validate.isValidNum(installments)) {
