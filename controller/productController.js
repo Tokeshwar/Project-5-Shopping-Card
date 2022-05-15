@@ -18,7 +18,7 @@ const createProduct = async function (req, res) {
             return res.status(400).send({ status: fale, message: "Please provide product's image" })
         }
 
-        const { title, description, price, style, availableSizes, installments, currencyId, currencyFormat } = data
+        const { title, description, price, style, availableSizes, installments, currencyId, currencyFormat, isFreeShipping } = data
 
         if (!validate.isValid(title)) {
             return res.status(400).send({ status: false, message: "Please provide product's title" })
@@ -77,12 +77,11 @@ const createProduct = async function (req, res) {
             if (!(isFreeShipping == true || isFreeShipping == false)) {
                 return res.status(400).send({ status: false, message: 'isFreeShipping should be true or false' })
             };
-            updatedProductData.isFreeShipping = isFreeShipping
         }
 
         const newProductImage = await uploadFile(files[0])
 
-        const productData = { title, description, price, productImage: newProductImage, style, availableSizes, installments, currencyId, currencyFormat }
+        const productData = { title, description, price, productImage: newProductImage, style, availableSizes, installments, currencyId, currencyFormat, isFreeShipping }
 
         const newProduct = await productModel.create(productData)
 
@@ -144,14 +143,16 @@ const getProduct = async (req, res) => {
                 }
                 filterQuery.price = { $lte: priceLessThan };
             }
-            if (filter.hasOwnProperty("priceLessThan", 'priceGreaterThan')) {
-                if (!validate.isValidNum(priceLessThan)) {
-                    return res.status(400).send({ status: false, msg: "Please give valid price" })
+            if (filter.hasOwnProperty("priceLessThan")) {
+                if (filter.hasOwnProperty('priceGreaterThan')) {
+                    if (!validate.isValidNum(priceLessThan)) {
+                        return res.status(400).send({ status: false, msg: "Please give valid price" })
+                    }
+                    if (!validate.isValidNum(priceGreaterThan)) {
+                        return res.status(400).send({ status: false, msg: "Please give valid price" })
+                    }
+                    filterQuery.price = { $lte: priceLessThan, $gte: priceGreaterThan };
                 }
-                if (!validate.isValidNum(priceGreaterThan)) {
-                    return res.status(400).send({ status: false, msg: "Please give valid price" })
-                }
-                filterQuery.price = { $lte: priceLessThan, $gte: priceGreaterThan };
             }
         }
         // console.log(filterQuery)
@@ -243,11 +244,23 @@ const Productupdate = async function (req, res) {
             if (!validate.isValidString(currencyId)) {
                 return res.status(400).send({ statas: false, message: 'currencyId is not valid' })
             }
+            if (currencyId == 'INR' && findProduct.currencyFormat != '₹') {
+                return res.status(400).send({ status: false, message: "The currency symbol is not as per the currency format. Supported " })
+            }
+            if (currencyId == 'USD' && findProduct.currencyFormat != '$') {
+                return res.status(400).send({ status: false, message: "The currency symbol is not as per the currency format. Supported " })
+            }
             updatedProductData.currencyId = currencyId
         }
         if (Object.keys(reqBody).includes('currencyFormat')) {
             if (!validate.isValidString(currencyFormat)) {
                 return res.status(400).send({ statas: false, message: 'formate is not valid' })
+            }
+             if (currencyFormat == '₹' && findProduct.currencyId != 'INR') {
+                return res.status(400).send({ status: false, message: "The currency symbol is not as per the currency format. Supported " })
+            }
+            if (currencyFormat == '$' && findProduct.currencyId != 'USD') {
+                return res.status(400).send({ status: false, message: "The currency symbol is not as per the currency format. Supported " })
             }
             updatedProductData.currencyFormat = currencyFormat
         }
